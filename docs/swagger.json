@@ -1,0 +1,86 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "A text-to-JSON structuring API powered by Google Gemini.",
+        "title": "GoApiProject",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/structure": {
+            "post": {
+                "description": "Receives raw unstructured text and uses Google Gemini to extract structured data as JSON. The LLM infers the best schema automatically. Retries up to 3 times on validation failure.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "structurer"
+                ],
+                "summary": "Structure unstructured text into JSON",
+                "parameters": [
+                    {
+                        "description": "Raw text to structure",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entity.StructureRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/entity.StructureResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid request body or empty raw_text",
+                        "schema": {
+                            "$ref": "#/definitions/http.errorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "LLM failed to produce valid JSON after 3 retries",
+                        "schema": {
+                            "$ref": "#/definitions/http.errorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "entity.StructureRequest": {
+            "type": "object",
+            "properties": {
+                "raw_text": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.StructureResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": true
+                }
+            }
+        },
+        "http.errorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

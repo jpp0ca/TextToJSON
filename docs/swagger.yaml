@@ -1,0 +1,58 @@
+basePath: /
+definitions:
+  entity.StructureRequest:
+    properties:
+      raw_text:
+        type: string
+    type: object
+  entity.StructureResponse:
+    properties:
+      data:
+        additionalProperties: true
+        type: object
+    type: object
+  http.errorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: A text-to-JSON structuring API powered by Google Gemini.
+  title: GoApiProject
+  version: "1.0"
+paths:
+  /structure:
+    post:
+      consumes:
+      - application/json
+      description: Receives raw unstructured text and uses Google Gemini to extract
+        structured data as JSON. The LLM infers the best schema automatically. Retries
+        up to 3 times on validation failure.
+      parameters:
+      - description: Raw text to structure
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entity.StructureRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entity.StructureResponse'
+        "400":
+          description: invalid request body or empty raw_text
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+        "422":
+          description: LLM failed to produce valid JSON after 3 retries
+          schema:
+            $ref: '#/definitions/http.errorResponse'
+      summary: Structure unstructured text into JSON
+      tags:
+      - structurer
+swagger: "2.0"
